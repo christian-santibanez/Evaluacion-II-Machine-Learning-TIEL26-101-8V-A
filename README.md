@@ -1,0 +1,169 @@
+## ♻️ TrashNet Binary Classifier
+### Evaluación II Machine Learning TIEL26-101-8V-A
+
+**✅ PROYECTO COMPLETADO Y EJECUTADO EXITOSAMENTE**
+
+---
+
+## 📘 Información Académica
+- Estudiante: Christian Santibáñez Martínez  
+- Profesor: Felipe Oyarzún  
+- Institución: INACAP  
+- Fecha: 03 de Noviembre, 2025  
+
+---
+
+## 📖 Descripción del Proyecto
+Clasificación binaria de imágenes de residuos: **Reciclable (1)** vs **No Reciclable (0)** usando el dataset público **TrashNet** y **Transfer Learning** con ResNet-18. Incluye pipeline reproducible, aumentos de datos, validación cruzada y evaluación final en test, más una herramienta de etiquetado en Streamlit.
+
+---
+
+## 🎯 Objetivos de Aprendizaje
+- Identificar tipos y pasos del aprendizaje supervisado.  
+- Explicar el entrenamiento de redes neuronales con transferencia.  
+- Aplicar generalización, augmentations y validación cruzada.  
+- Evaluar métricas (Accuracy, Precision, Recall, F1, ROC-AUC) y analizar resultados.
+
+---
+
+## 🏗️ Modelo y Configuración
+```
+Entrada (224x224 RGB) → ResNet-18 (imagenet, capa final binaria)
+Pérdida: BCEWithLogitsLoss (con class weights)
+Optimizador: AdamW (lr=3e-4, wd=1e-4) + Cosine LR
+Early Stopping: paciencia=5
+```
+
+---
+
+## 📊 Dataset
+- Origen: TrashNet (MIT).  
+- Clases originales (6): glass, paper, cardboard, plastic, metal, trash.  
+- Mapeo binario: reciclable={glass,paper,cardboard,plastic,metal} → 1; no reciclable={trash} → 0.  
+- Estructura esperada: `data/raw/dataset-resized/<clase>/*.jpg`.  
+- CSV con splits: `data/interim/labels.csv` (2527 filas; train/val/test ≈ 70/15/15).
+
+---
+
+## ⚙️ Cómo Ejecutar el Proyecto
+1) Crear entorno e instalar dependencias (Windows/PowerShell):
+```powershell
+python -m venv .venv
+\.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+2) Preparar dataset y generar CSV:
+```powershell
+python -m src.data.prepare_dataset --raw_dir data/raw/dataset-resized --out_csv data/interim/labels.csv --test_size 0.15 --val_size 0.15 --seed 42
+```
+3) Herramienta de etiquetado (opcional):
+```powershell
+streamlit run tools/label_tool_streamlit.py -- --csv data/interim/labels.csv
+```
+4) Entrenamiento baseline:
+```powershell
+python -m src.train.train --config config.yaml
+```
+5) Validación cruzada (5-fold):
+```powershell
+python -m src.train.cross_validate --config config.yaml
+```
+6) Figuras para el informe (curvas + matriz + ROC):
+```powershell
+python -m src.train.evaluate --exp_dir experiments/exp_YYYYMMDD_HHMMSS --config config.yaml --out_dir report/figuras
+```
+
+---
+
+## 📈 Resultados del Proyecto
+### Validación Cruzada (5 folds)
+- Accuracy: 0.9423 ± 0.0115  
+- Precision macro: 0.7435 ± 0.0255  
+- Recall macro: 0.9490 ± 0.0153  
+- F1 macro: 0.8068 ± 0.0233  
+- ROC-AUC: 0.9818 ± 0.0082  
+
+### Test Final (modelo entrenado)
+- Accuracy: 0.9658  
+- F1 macro: 0.8398  
+- ROC-AUC: 0.9674  
+
+---
+
+## 📂 Estructura del Proyecto
+```
+Evaluación II Machine Learning TIEL26-101-8V-A/
+├── config.yaml                       # Configuración del pipeline
+├── requirements.txt                  # Dependencias
+├── README.md                         # Este documento
+├── .gitignore                        # Configuración de Git
+├── predicciones_trash.csv            # CSV de inferencia por carpeta [GENERADO]
+│
+├── data/
+│   ├── raw/                          # Colocar TrashNet (IGNORADO)
+│   ├── interim/                      # CSV con splits
+│   └── processed/                    # Procesados (IGNORADO)
+│
+├── src/
+│   ├── data/                         # prepare_dataset, dataset, augmentations
+│   ├── models/                       # build_model
+│   ├── train/                        # train, cross_validate, evaluate
+│   └── utils/                        # seed, metrics, config
+│
+├── tools/
+│   └── label_tool_streamlit.py       # Herramienta de etiquetado
+│
+├── experiments/                      # Artefactos (pesos ignorados; JSON visibles)
+│
+└── report/
+    └── figuras/                      # Imágenes para el informe
+```
+
+---
+
+## 🔎 Análisis de Errores (resumen)
+- Recall macro alto sugiere buena sensibilidad en ambas clases.  
+- Precision macro menor indica algunos falsos positivos (umbral ajustable).  
+- Oportunidad: threshold tuning o focal loss según requerimientos.
+
+---
+
+## 📊 Visualizaciones Incluidas
+1. `report/figuras/loss_curves.png` — Curvas de pérdida train/val.  
+2. `report/figuras/val_metrics_curves.png` — Accuracy/F1 val por época.  
+3. `report/figuras/confusion_matrix_test.png` — Matriz de confusión test.  
+4. `report/figuras/roc_curve_test.png` — Curva ROC test.  
+
+---
+
+## 🧾 Reproducibilidad
+- Configuración centralizada en `config.yaml`.  
+- Semillas fijadas (`src/utils/seed.py`).  
+- `experiments/`: JSON visibles; pesos `.pt/.pth` ignorados.
+
+---
+
+## 🚀 Demo rápida (inferencia)
+Usa el mejor modelo entrenado para predecir si una imagen es reciclable.
+
+1) Imagen única:
+```powershell
+python -m src.train.predict --exp_dir experiments/exp_YYYYMMDD_HHMMSS --image "data/raw/dataset-resized/plastic/plastic390.jpg"
+```
+
+2) Carpeta completa (genera CSV opcional):
+```powershell
+python -m src.train.predict --exp_dir experiments/exp_YYYYMMDD_HHMMSS --dir "data/raw/dataset-resized/trash" --csv_out "predicciones_trash.csv"
+```
+
+Opcionales:
+- `--threshold 0.5` para ajustar el umbral de clasificación.
+- `--image_size 224` para cambiar el tamaño de entrada.
+
+---
+
+## 📚 Citación y Licencias
+- TrashNet — MIT License (https://huggingface.co/datasets/garythung/trashnet).  
+- Este proyecto con fines académicos.
+

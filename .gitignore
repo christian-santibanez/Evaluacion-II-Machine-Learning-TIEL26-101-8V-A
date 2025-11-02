@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+*.ipynb_checkpoints
+
+# Data
+/data/raw/
+/data/interim/*.bak
+/data/processed/
+
+# Experiments: ignore heavy artifacts, allow JSON summaries
+/experiments/*
+!/experiments/**/*.json
+*.pt
+*.pth
+
+# Report
+/report/*.pdf
+/report/*.docx
+# Keep report images (png/jpg) tracked
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,28 @@
+{
+  "seed": 42,
+  "paths": {
+    "raw_dir": "data/raw/dataset-resized",
+    "csv_path": "data/interim/labels.csv",
+    "experiments_dir": "experiments"
+  },
+  "training": {
+    "model_name": "resnet18",
+    "image_size": 224,
+    "batch_size": 32,
+    "num_epochs": 10,
+    "lr": "3e-4",
+    "weight_decay": "1e-4",
+    "scheduler": "cosine",
+    "loss": "bce_logits",
+    "num_workers": 2,
+    "class_weight": true,
+    "early_stopping_patience": 5
+  },
+  "augmentation": {
+    "strength": "medium"
+  },
+  "cv": {
+    "enabled": true,
+    "folds": 5
+  }
+}

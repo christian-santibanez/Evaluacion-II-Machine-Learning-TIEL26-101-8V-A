@@ -75,6 +75,7 @@ def main():
     use_class_weight = bool(cfg["training"].get("class_weight", True))
     num_workers = int(cfg["training"].get("num_workers", 2))
     early_stop_patience = int(cfg["training"].get("early_stopping_patience", 5))
+    finetune_strategy = cfg["training"].get("finetune_strategy", "full")
     aug_strength = cfg.get("augmentation", {}).get("strength", "medium")
 
     csv_path = cfg["paths"]["csv_path"]
@@ -116,11 +117,12 @@ def main():
             fold_csv, image_size, batch_size, num_workers, aug_strength
         )
 
-        model, _ = build_model(model_name)
+        model, _ = build_model(model_name, finetune_strategy=finetune_strategy)
         model.to(device)
 
         criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-        optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+        trainable_params = [p for p in model.parameters() if p.requires_grad]
+        optimizer = AdamW(trainable_params, lr=lr, weight_decay=weight_decay)
         if scheduler_name == "cosine":
             scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
         else:

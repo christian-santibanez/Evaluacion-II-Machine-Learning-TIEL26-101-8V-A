@@ -15,6 +15,7 @@ training:
   num_workers: 2
   class_weight: true
   early_stopping_patience: 5
+  finetune_strategy: full   # <- NUEVA LÍNEA
 augmentation:
   strength: medium
 cv:

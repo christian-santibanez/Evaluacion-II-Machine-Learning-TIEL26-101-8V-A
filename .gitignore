@@ -17,6 +17,7 @@ venv/
 
 # Experiments: ignore heavy artifacts, allow JSON summaries
 /experiments/*
+!/experiments/**/
 !/experiments/**/*.json
 *.pt
 *.pth

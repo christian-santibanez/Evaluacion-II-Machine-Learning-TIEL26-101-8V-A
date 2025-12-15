@@ -26,12 +26,16 @@ Clasificación binaria de imágenes de residuos: **Reciclable (1)** vs **No Reci
 
 ---
 
-## 🏗️ Modelo y Configuración
+## 🏗️ Modelo y Configuración (Deep Learning)
 ```
-Entrada (224x224 RGB) → ResNet-18 (imagenet, capa final binaria)
+Entrada (224x224 RGB) → CNN pre-entrenada (ResNet-18 / MobileNetV3-Small)
 Pérdida: BCEWithLogitsLoss (con class weights)
-Optimizador: AdamW (lr=3e-4, wd=1e-4) + Cosine LR
+Optimizador: AdamW (lr=3e-4, wd=1e-4) + Cosine LR / ReduceLROnPlateau
 Early Stopping: paciencia=5
+
+Estrategia de fine-tuning (config.yaml → training.finetune_strategy):
+- "full": entrena todo el backbone (fine-tuning completo)
+- "head": congela el backbone y entrena solo la última capa (head-only)
 ```
 
 ---
@@ -61,7 +65,7 @@ python -m src.data.prepare_dataset --raw_dir data/raw/dataset-resized --out_csv 
 ```powershell
 streamlit run tools/label_tool_streamlit.py -- --csv data/interim/labels.csv
 ```
-4) Entrenamiento baseline:
+4) Entrenamiento (Deep Learning):
 ```powershell
 python -m src.train.train --config config.yaml
 ```
@@ -73,6 +77,19 @@ python -m src.train.cross_validate --config config.yaml
 ```powershell
 python -m src.train.evaluate --exp_dir experiments/exp_YYYYMMDD_HHMMSS --config config.yaml --out_dir report/figuras
 ```
+
+7) Exportar el mejor modelo a ONNX (para producción):
+```powershell
+python -m src.models.export_onnx --exp_dir experiments/exp_YYYYMMDD_HHMMSS --config config.yaml
+```
+Genera `experiments/exp_YYYYMMDD_HHMMSS/model.onnx` usando la configuración guardada.
+
+8) Servicio de inferencia (FastAPI + ONNX, local):
+```powershell
+uvicorn serving.api_fastapi:app --reload
+```
+- Ir a `http://127.0.0.1:8000/` para ver el estado del servicio.
+- Ir a `http://127.0.0.1:8000/docs` para abrir la UI automática (Swagger) y probar el endpoint `POST /predict` subiendo imágenes.
 
 ---
 
@@ -107,12 +124,22 @@ Evaluación II Machine Learning TIEL26-101-8V-A/
 │
 ├── src/
 │   ├── data/                         # prepare_dataset, dataset, augmentations
-│   ├── models/                       # build_model
+│   ├── models/                       # build_model, export_onnx
 │   ├── train/                        # train, cross_validate, evaluate
 │   └── utils/                        # seed, metrics, config
 │
 ├── tools/
 │   └── label_tool_streamlit.py       # Herramienta de etiquetado
+│
+├── serving/
+│   └── api_fastapi.py                # Servicio de inferencia (FastAPI + ONNX)
+│
+├── tests/
+│   └── test_model_and_export.py      # Tests: forma del modelo + exportación ONNX
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml                    # CI (GitHub Actions) ejecuta pytest en cada push/PR
 │
 ├── experiments/                      # Artefactos (pesos ignorados; JSON visibles)
 │
@@ -140,7 +167,9 @@ Evaluación II Machine Learning TIEL26-101-8V-A/
 ## 🧾 Reproducibilidad
 - Configuración centralizada en `config.yaml`.  
 - Semillas fijadas (`src/utils/seed.py`).  
-- `experiments/`: JSON visibles; pesos `.pt/.pth` ignorados.
+- `experiments/`: JSON visibles; pesos `.pt/.pth` ignorados.  
+- Exportación a ONNX reproducible vía `src/models/export_onnx.py`.  
+- CI mínima en GitHub Actions (`.github/workflows/ci.yml`) que instala dependencias y ejecuta `pytest`.
 
 ---
 

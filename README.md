@@ -1,7 +1,7 @@
 ## ♻️ TrashNet Binary Classifier
-### Evaluación II Machine Learning TIEL26-101-8V-A
+### Evaluación III-IV Machine Learning TIEL26-101-8V-A
 
-**✅ PROYECTO COMPLETADO Y EJECUTADO EXITOSAMENTE**
+**✅ PROYECTO COMPLETADO Y EJECUTADO EXITOSAMENTE (Deep Learning + Producción)**
 
 ---
 
@@ -9,20 +9,29 @@
 - Estudiante: Christian Santibáñez Martínez  
 - Profesor: Felipe Oyarzún  
 - Institución: INACAP  
-- Fecha: 03 de Noviembre, 2025  
+- Fecha: 15 de Diciembre, 2025  
 
 ---
 
 ## 📖 Descripción del Proyecto
-Clasificación binaria de imágenes de residuos: **Reciclable (1)** vs **No Reciclable (0)** usando el dataset público **TrashNet** y **Transfer Learning** con ResNet-18. Incluye pipeline reproducible, aumentos de datos, validación cruzada y evaluación final en test, más una herramienta de etiquetado en Streamlit.
+Proyecto de **Deep Learning aplicado a visión por computador**, cuyo objetivo es clasificar imágenes de residuos en dos clases: **Reciclable (1)** y **No Reciclable (0)** usando el dataset público **TrashNet**. 
+
+El trabajo integra todo el ciclo de vida de un modelo de Deep Learning:
+- Construcción de un clasificador binario basado en **CNN pre-entrenadas** (ResNet-18 / MobileNetV3-Small) con **transfer learning y fine-tuning**.
+- Generación y aumento del conjunto de datos (re-etiquetado binario, splits estratificados y data augmentation geométrico/fotométrico).
+- Entrenamiento, validación cruzada y evaluación final en un conjunto de test independiente.
+- **Exportación del modelo a ONNX** y desarrollo de un **servicio de inferencia con FastAPI**, pensado para producción en entornos locales o cloud.
+- Configuración de **integración continua (CI)** con GitHub Actions para validar automáticamente la construcción del modelo y la exportación a ONNX.
 
 ---
 
 ## 🎯 Objetivos de Aprendizaje
-- Identificar tipos y pasos del aprendizaje supervisado.  
-- Explicar el entrenamiento de redes neuronales con transferencia.  
-- Aplicar generalización, augmentations y validación cruzada.  
-- Evaluar métricas (Accuracy, Precision, Recall, F1, ROC-AUC) y analizar resultados.
+- Diseñar e implementar un modelo de **Deep Learning** basado en redes convolucionales y transferencia de aprendizaje para clasificación de imágenes.  
+- Configurar y comparar estrategias de **fine-tuning** (entrenamiento completo del backbone vs. entrenamiento solo de la cabeza).  
+- Generar y aumentar un conjunto de datos para Deep Learning, aplicando **splits estratificados y data augmentation** para mejorar la generalización.  
+- Evaluar rigurosamente el desempeño del modelo (Accuracy, Precision, Recall, F1, ROC-AUC) mediante validación cruzada y test independiente.  
+- Implementar el modelo en **modo de producción** usando exportación a ONNX y un servicio de inferencia con FastAPI, considerando eficiencia y uso de recursos.  
+- Incorporar una **integración continua básica (CI)** que ejecute tests sobre el modelo y el proceso de exportación, asegurando reproducibilidad y mantenibilidad del proyecto.
 
 ---
 

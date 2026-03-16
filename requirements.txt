@@ -1,3 +1,4 @@
+# --- Producción e IA ---
 torch>=2.2.0
 torchvision>=0.17.0
 scikit-learn>=1.4.0
@@ -16,3 +17,6 @@ onnxscript>=0.1.0
 fastapi>=0.103.0
 python-multipart>=0.0.9
 uvicorn[standard]>=0.38.0
+
+# --- Herramientas de Desarrollo y Testing ---
+pytest>=7.0.0
